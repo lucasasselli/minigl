@@ -2,11 +2,13 @@
 
 #include <stdint.h>
 
+#ifdef MINIGL_16F
 #ifdef __arm__
 #include <arm_fp16.h>
 typedef __fp16 fp16_t;
 #else
 typedef float fp16_t;
+#endif
 #endif
 
 /**
@@ -19,7 +21,7 @@ typedef float fp16_t;
  * @brief Represents a single pixel in the MiniGL frame.
  */
 typedef struct {
-    fp16_t depth;      ///< Depth value of the pixel.
+    float depth;       ///< Depth value of the pixel.
     uint8_t color;     ///< Color value of the pixel.
     uint8_t RESERVED;  // Easier to clear full word!
 } minigl_pixel_t;

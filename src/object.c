@@ -4,12 +4,11 @@
 #include <string.h>
 
 #include "minigl/system.h"
+#include "minigl/utils.h"
 
 #define LINE_BUFFER_SIZE 70
 #define MAT_NAME_SIZE_MAX 20
 #define MAT_CNT_MAX 30
-
-// TODO: Add ability to read bitmaps
 
 static bool str_starts_with(const char *a, const char *b) {
     if (strncmp(a, b, strlen(b)) == 0) return 1;
@@ -191,22 +190,34 @@ int minigl_obj_read_file(char *path, minigl_obj_t *out, int flags) {
     return 0;
 }
 
-void minigl_obj_copy(minigl_obj_t in, minigl_obj_t *out) {
-    *out = in;
-    out->vcoord_ptr = (vec4 *)malloc(in.vcoord_size * sizeof(vec4));
-    memcpy(out->vcoord_ptr, in.vcoord_ptr, in.vcoord_size * sizeof(vec4));
+void minigl_obj_free(minigl_obj_t *obj) {
+    minigl_safe_free(obj->vcoord_ptr);
+    minigl_safe_free(obj->tcoord_ptr);
+    minigl_safe_free(obj->vface_ptr);
+    minigl_safe_free(obj->tface_ptr);
+    minigl_safe_free(obj->mface_ptr);
 }
 
-void minigl_obj_copy_trans(minigl_obj_t in, mat4 trans, minigl_obj_t *out) {
+void minigl_obj_copy(minigl_obj_t *in, minigl_obj_t *out) {
     // Copy all fields from in obj
-    *out = in;
+    *out = *in;
 
     // Allocate
-    out->vcoord_ptr = (vec4 *)malloc(in.vcoord_size * sizeof(vec4));
+    out->vcoord_ptr = (vec4 *)malloc(in->vcoord_size * sizeof(vec4));
+
+    memcpy(out->vcoord_ptr, in->vcoord_ptr, in->vcoord_size * sizeof(vec4));
+}
+
+void minigl_obj_copy_trans(minigl_obj_t *in, mat4 trans, minigl_obj_t *out) {
+    // Copy all fields from in obj
+    *out = *in;
+
+    // Allocate
+    out->vcoord_ptr = (vec4 *)malloc(in->vcoord_size * sizeof(vec4));
 
     // Apply transformation
-    for (int i = 0; i < in.vcoord_size; i++) {
-        glm_mat4_mulv(trans, in.vcoord_ptr[i], out->vcoord_ptr[i]);
+    for (int i = 0; i < in->vcoord_size; i++) {
+        glm_mat4_mulv(trans, in->vcoord_ptr[i], out->vcoord_ptr[i]);
     }
 }
 
@@ -228,17 +239,17 @@ void minigl_objbuf_free(minigl_objbuf_t *buf) {
     free(buf);
 }
 
-void minigl_obj_to_objbuf_trans(minigl_obj_t in, mat4 trans, minigl_objbuf_t *out) {
-    out->tcoord_ptr = in.tcoord_ptr;
-    out->vface_ptr = in.vface_ptr;
-    out->tface_ptr = in.tface_ptr;
-    out->mface_ptr = in.mface_ptr;
-    out->vcoord_size = in.vcoord_size;
-    out->tcoord_size = in.tcoord_size;
-    out->face_size = in.face_size;
+void minigl_obj_to_objbuf_trans(minigl_obj_t *in, mat4 trans, minigl_objbuf_t *out) {
+    out->tcoord_ptr = in->tcoord_ptr;
+    out->vface_ptr = in->vface_ptr;
+    out->tface_ptr = in->tface_ptr;
+    out->mface_ptr = in->mface_ptr;
+    out->vcoord_size = in->vcoord_size;
+    out->tcoord_size = in->tcoord_size;
+    out->face_size = in->face_size;
 
     // Apply transformation
-    for (int i = 0; i < in.vcoord_size; i++) {
-        glm_mat4_mulv(trans, in.vcoord_ptr[i], out->vcoord_ptr[i]);
+    for (int i = 0; i < in->vcoord_size; i++) {
+        glm_mat4_mulv(trans, in->vcoord_ptr[i], out->vcoord_ptr[i]);
     }
 }

@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "minigl/common.h"
+#include "minigl/utils.h"
 
 #ifdef MINIGL_INTERLACING
 #define Y_STEP 2
@@ -96,7 +97,7 @@ MINIGL_INLINE void set_pixel(int x, int y, float z, uint8_t color) {
 
 #ifndef MINIGL_NO_DITHERING
     // FIXME: use mask?
-    p->color = (color >= cfg.dither.color[y % cfg.dither.size_y][x % cfg.dither.size_x]);
+    p->color = (color >= cfg.dither.data_g8[y % cfg.dither.size_y][x % cfg.dither.size_x].color) ? 255 : 0;
 #else
     p->color = color;
 #endif
