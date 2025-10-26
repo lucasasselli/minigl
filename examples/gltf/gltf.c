@@ -77,6 +77,10 @@ void gltf_parse_materials(gltf_context_t* context) {
                 cgltf_texture* texture = material->pbr_metallic_roughness.base_color_texture.texture;
                 context->gltf_materials[i]->type = MINIGL_MATERIAL_TEXTURE;
                 context->gltf_materials[i]->tex = context->gltf_images[cgltf_image_index(context->data, texture->image)];
+            }else {
+                int color = material->pbr_metallic_roughness.base_color_factor[0] * 255;
+                context->gltf_materials[i]->type = MINIGL_MATERIAL_COLOR;
+                context->gltf_materials[i]->color = color;
             }
         }
     }
